@@ -4,9 +4,16 @@ from sklearn import datasets, linear_model, cross_validation
 import import_data
 
 
+def convert_times(data):
+	#year, month, day
+	[year, month, day] = data[0:3]
+	days_in_month = {1:31, 2:28, 3:31, 4:30, 5:31, 6:30, 7:31, 8:31, 9:30, 10:31, 11:30, 12:31}
+	time = (year - 2011)*365 + month*days_in_month[int(month)] + day
+	return [time, data[3:len(data)]]
 
 #http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
 #link to what we want to do!
+
 def read_data(filename):
 	#Import the csv
 	importedData = import_data.read_csv(filename)
@@ -14,7 +21,6 @@ def read_data(filename):
 	#Split into inputs and outputs
 	X = importedData[:, 0: importedData.shape[1] - 3]
 	y = importedData[:, importedData.shape[1] - 1]
-
 	return (X,y)
 
 def split_data(X,y,modelSplitIndex,testSize):

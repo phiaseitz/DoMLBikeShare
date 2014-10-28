@@ -35,6 +35,9 @@ def visualize_data(xToPlot,yToPlot):
 	plt.scatter(xToPlot,yToPlot)
 	plt.show()
 
+def do_learning(XTrain, yTrain):
+	clf = linear_model.Ridge(alpha = 0.5)
+	clf.fit(XTrain,yTrain)
 
 def main ():
 	data = read_data('train.csv')
@@ -52,7 +55,8 @@ def main ():
 	hy_train = splitData[6]
 	hy_test = splitData[7]
 
-	visualize_data(wX_train[:,1],wy_train)
+	do_learning(wX_train,wy_train)
+	#visualize_data(wX_train[:,1],wy_train)
 
 if __name__ == '__main__':
     main()

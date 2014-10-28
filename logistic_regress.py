@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn import datasets, linear_model
+from sklearn import datasets, linear_model, cross_validation
 import import_data
 
 #Import the csv
@@ -18,13 +18,16 @@ hX = X[X[:,4] != 1.]
 wy = y[X[:,4] == 1.]
 hy = y[X[:,4] != 1.]
 
+wX_train , wX_test, wy_train, wy_test = cross_validation.train_test_split(wX, wy, test_size=.5)
+hX_train , hX_test, hy_train, hy_test = cross_validation.train_test_split(hX, hy, test_size=.5)
+
 #http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
 #link to what we want to do!
-
-
 
 print (wy)
 
 
 # print (X)
 # print (y)
+
+plt.plot(wX[:,0],wy)

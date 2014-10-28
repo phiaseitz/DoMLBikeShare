@@ -3,8 +3,6 @@ import numpy as np
 from sklearn import datasets, linear_model, cross_validation
 import import_data
 
-#Import the csv
-importedData = import_data.read_csv('train.csv')
 
 def convert_times(data):
 	#year, month, day
@@ -13,29 +11,54 @@ def convert_times(data):
 	time = (year - 2011)*365 + month*days_in_month[int(month)] + day
 	return [time, data[3:len(data)]]
 
-#Split into inputs and outputs
-X = importedData[:, 0: importedData.shape[1] - 3]
-y = importedData[:, importedData.shape[1] - 1]
-
-#wX = np.split(X, np.where(X[:,3] == 1.) [0][0:])
-#split into working day and non-workind day data sets so that we can learn two different models
-wX = X[X[:,6] == 1.]
-hX = X[X[:,6] != 1.]
-
-wy = y[X[:,6] == 1.]
-hy = y[X[:,6] != 1.]
-
-wX_train , wX_test, wy_train, wy_test = cross_validation.train_test_split(wX, wy, test_size=.5)
-hX_train , hX_test, hy_train, hy_test = cross_validation.train_test_split(hX, hy, test_size=.5)
-
 #http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
 #link to what we want to do!
 
-print (wy)
+def read_data(filename):
+	#Import the csv
+	importedData = import_data.read_csv(filename)
+
+	#Split into inputs and outputs
+	X = importedData[:, 0: importedData.shape[1] - 3]
+	y = importedData[:, importedData.shape[1] - 1]
+	return (X,y)
+
+def split_data(X,y,modelSplitIndex,testSize):
+	#6 is the index of whether or not it is a work day
+	#split into working day and non-workind day data sets so that we can learn two different models
+	wX = X[X[:,modelSplitIndex] == 1.]
+	hX = X[X[:,modelSplitIndex] != 1.]
+
+	wy = y[X[:,modelSplitIndex] == 1.]
+	hy = y[X[:,modelSplitIndex] != 1.]
+
+	wX_train , wX_test, wy_train, wy_test = cross_validation.train_test_split(wX, wy, test_size=testSize)
+	hX_train , hX_test, hy_train, hy_test = cross_validation.train_test_split(hX, hy, test_size=testSize)
+	
+	return (wX_train , wX_test, wy_train, wy_test, hX_train , hX_test, hy_train, hy_test)
+
+def visualize_data(xToPlot,yToPlot):
+	plt.scatter(xToPlot,yToPlot)
+	plt.show()
 
 
-# print (X)
-# print (y)
+def main ():
+	data = read_data('train.csv')
+	X = data[0]
+	y = data[1]
 
-plt.plot(wX[:,0],wy)
-plt.show()
+	splitData = split_data(X,y,6,0.5)
+
+	wX_train = splitData[0]
+	wX_test = splitData[1]
+	wy_train = splitData[2]
+	wy_test = splitData[3]
+	hX_train = splitData[4]
+	hX_test = splitData[5]
+	hy_train = splitData[6]
+	hy_test = splitData[7]
+
+	visualize_data(wX_train[:,1],wy_train)
+
+if __name__ == '__main__':
+    main()

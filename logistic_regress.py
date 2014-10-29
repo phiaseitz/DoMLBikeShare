@@ -1,18 +1,23 @@
+#DoML BikeShare Project
+#Shrinidhi Thirumalai, Sophia Sietz, Anne LoVerso
+
+#Imports
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import datasets, linear_model, cross_validation
 import import_data
 
+#link to what we want to do!
+#http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
 
+
+#Functions
 def convert_times(data):
 	#year, month, day
 	[year, month, day] = data[0:3]
 	days_in_month = {1:31, 2:28, 3:31, 4:30, 5:31, 6:30, 7:31, 8:31, 9:30, 10:31, 11:30, 12:31}
 	time = (year - 2011)*365 + month*days_in_month[int(month)] + day
 	return [time, data[3:len(data)]]
-
-#http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
-#link to what we want to do!
 
 def read_data(filename):
 	#Import the csv
@@ -50,26 +55,25 @@ def do_learning(XTrain, yTrain,XTest, yTest):
 	print (ridge.score(XTest, yTest))
 
 def visualize_learn(ridge, XTest, yTest):
-	plt.scatter(XTest, yTest, color = 'black')
-	plt.scatter(ridge.predict(XTest), color = 'blue')
+	plt.scatter(XTest[:,1], yTest, color = 'black')
+	plt.scatter(XTest[:,1], ridge.predict(XTest), color = 'blue')
 
 def main ():
+	#Reading Data
 	data = read_data('train.csv')
 	X = data[0]
 	y = data[1]
 
+	#Splitting Data
 	splitData = split_data(X,y,6,0.5)
+	wX_train, wX_test, wy_train, wy_test = splitData[0:4]
+	hX_train, hX_test, hy_train, hy_test = splitData[4:7]
 
-	wX_train = splitData[0]
-	wX_test = splitData[1]
-	wy_train = splitData[2]
-	wy_test = splitData[3]
-	hX_train = splitData[4]
-	hX_test = splitData[5]
-	hy_train = splitData[6]
-	hy_test = splitData[7]
-
+	#Learning
 	do_learning(wX_train,wy_train,wX_test, wy_test)
+
+	#Visualization
+	visualize_learn
 	#visualize_data(wX_train[:,1],wy_train)
 
 if __name__ == '__main__':

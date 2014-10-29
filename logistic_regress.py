@@ -41,9 +41,17 @@ def visualize_data(xToPlot,yToPlot):
 	plt.scatter(xToPlot,yToPlot)
 	plt.show()
 
-def do_learning(XTrain, yTrain):
-	clf = linear_model.Ridge(alpha = 0.5)
-	clf.fit(XTrain,yTrain)
+def do_learning(XTrain, yTrain,XTest, yTest):
+	ridge = linear_model.Ridge(alpha = 0.5)
+	ridge.fit(XTrain,yTrain)
+
+	print (ridge.coef_)
+
+	print (ridge.score(XTest, yTest))
+
+def visualize_learn(ridge, XTest, yTest):
+	plt.scatter(XTest, yTest, color = 'black')
+	plt.scatter(ridge.predict(XTest), color = 'blue')
 
 def main ():
 	data = read_data('train.csv')
@@ -61,7 +69,7 @@ def main ():
 	hy_train = splitData[6]
 	hy_test = splitData[7]
 
-	do_learning(wX_train,wy_train)
+	do_learning(wX_train,wy_train,wX_test, wy_test)
 	#visualize_data(wX_train[:,1],wy_train)
 
 if __name__ == '__main__':

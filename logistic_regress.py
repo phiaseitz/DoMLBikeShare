@@ -10,6 +10,7 @@ import import_data
 #link to what we want to do!
 #http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
 
+Categories = {'year': 0, 'month': 1, 'day': 2, 'time': 3, 'season': 4, 'holiday': 5, 'workingday': 6, 'weather': 7, 'temp': 8, 'atemp': 9, 'humidity': 10, 'windspeed': 11, 'casual': 12, 'registered': 13, 'count': 14}
 
 #Functions
 def convert_times(data):
@@ -29,14 +30,19 @@ def read_data(filename):
 	return (X,y)
 
 def split_data(X,y,modelSplitIndex,testSize):
-	#6 is the index of whether or not it is a work day
 	#split into working day and non-workind day data sets so that we can learn two different models
+
+	#Splitting on workday
 	wX = X[X[:,modelSplitIndex] == 1.]
 	hX = X[X[:,modelSplitIndex] != 1.]
 
 	wy = y[X[:,modelSplitIndex] == 1.]
 	hy = y[X[:,modelSplitIndex] != 1.]
 
+	#Deleting workday
+	data = [np.delete(data, modelSplitIndex, 1)for data in [wX, hX, wy, hy]]
+
+	#Test and Train Split
 	wX_train , wX_test, wy_train, wy_test = cross_validation.train_test_split(wX, wy, test_size=testSize)
 	hX_train , hX_test, hy_train, hy_test = cross_validation.train_test_split(hX, hy, test_size=testSize)
 	
@@ -46,8 +52,10 @@ def visualize_data(xToPlot,yToPlot):
 	plt.scatter(xToPlot,yToPlot)
 	plt.show()
 
-def do_learning(XTrain, yTrain,XTest, yTest, variables):
+def do_learning(XTrain, yTrain,XTest, yTest, disclude):
 	ridge = linear_model.Ridge(alpha = 0.5)
+	for data in [XTrain, yTrain, XTest, yTest]:
+		data = np.delete(data, disclude, 1)
 	ridge.fit(XTrain,yTrain)
 	#Prints
 	print (ridge.coef_)
@@ -55,7 +63,9 @@ def do_learning(XTrain, yTrain,XTest, yTest, variables):
 	#Return Ridge
 	return ridge
 
-def visualize_learn(ridge, XTest, yTest, variables):
+def visualize_learn(ridge, XTest, yTest, disclude):
+	for data in [XTest, yTest]:
+		data = np.delete(data, disclude, 1)
 	plt.scatter(XTest[:,1], yTest, color = 'black')
 	plt.scatter(XTest[:,1], ridge.predict(XTest), color = 'blue')
 	plt.show()
@@ -67,18 +77,18 @@ def main ():
 	y = data[1]
 
 	#Splitting Data
-	splitData = split_data(X,y,6,0.5)
+	splitData = split_data(X,y,Categories['workingday'],0.5)
 	wX_train, wX_test, wy_train, wy_test = splitData[0:4]
 	hX_train, hX_test, hy_train, hy_test = splitData[4:8]
 
-	#Variables:
-	variables = [1:len(wX_train)] #Everything except year
+	#disclude:
+	disclude = [0] #Everything except year
 
 	#Learning
-	model = do_learning(wX_train,wy_train,wX_test, wy_test)
+	model = do_learning(wX_train,wy_train,wX_test, wy_test, disclude)
 
 	#Visualization
-	visualize_learn(model, wX_test, wy_test)
+	visualize_learn(model, wX_test, wy_test, disclude)
 	#visualize_data(wX_train[:,1],wy_train)
 
 if __name__ == '__main__':

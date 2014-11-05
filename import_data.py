@@ -28,7 +28,9 @@ def read_csv(file_path, has_header = True):
             month = date[1]
             day = date[2]
 
-            time = line[0][line[0].index(' '): len(line[0])]
+            #Start with the index after the space
+            time = line[0][line[0].index(' ') + 1: len(line[0])]
+
             time = time[0:2]
 
             line.pop(0)
@@ -36,8 +38,10 @@ def read_csv(file_path, has_header = True):
             line.insert(0, day)
             line.insert(0, month)
             line.insert(0, year)
+
             data.append([float(x) for x in line])
             npdata = np.array(data)
+
     return npdata  
 
 def main ():

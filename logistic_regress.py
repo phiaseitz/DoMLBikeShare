@@ -10,6 +10,7 @@ import import_data
 #link to what we want to do!
 #http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
 
+np.set_printoptions(threshold=np.inf)
 
 #Functions
 def convert_times(data):
@@ -58,23 +59,47 @@ def visualize_learn(ridge, XTest, yTest):
 	plt.scatter(XTest[:,1], yTest, color = 'black')
 	plt.scatter(XTest[:,1], ridge.predict(XTest), color = 'blue')
 
+def visualize_by_index(XTrain,yTrain,XTest,yTest, indexToPlot):
+
+	indexValsTrain = XTrain[:,indexToPlot]
+	indexValsTest	= XTest[:,indexToPlot]
+
+	uniqueValsTrain = np.unique(indexValsTrain)
+	uniqueValsTest = np.unique(indexValsTest)
+
+	sumRentalsTrain = [np.sum(yTrain[XTrain[:,indexToPlot]== uniqueVal]) for uniqueVal in uniqueValsTrain]
+	sumRentalsTest = [np.sum(yTest[XTest[:,indexToPlot]== uniqueVal]) for uniqueVal in uniqueValsTest]
+
+	plt.figure()
+	plt.scatter(uniqueValsTrain,sumRentalsTrain, color = 'blue')
+	plt.scatter(uniqueValsTest,sumRentalsTest, color = 'black')
+	#plt.show()
+
+
+
 def main ():
 	#Reading Data
+	print ('Reading data')
 	data = read_data('train.csv')
 	X = data[0]
 	y = data[1]
 
 	#Splitting Data
+	print ('Splitting data')
 	splitData = split_data(X,y,6,0.5)
 	wX_train, wX_test, wy_train, wy_test = splitData[0:4]
-	hX_train, hX_test, hy_train, hy_test = splitData[4:7]
+	hX_train, hX_test, hy_train, hy_test = splitData[4:8]
 
-	#Learning
-	do_learning(wX_train,wy_train,wX_test, wy_test)
+	# #Learning
+	# do_learning(wX_train,wy_train,wX_test, wy_test)
 
-	#Visualization
-	visualize_learn
-	#visualize_data(wX_train[:,1],wy_train)
+	# #Visualization
+	# visualize_learn
+	# #visualize_data(wX_train[:,1],wy_train)
 
+	visualize_by_index(wX_train,wy_train,wX_test,wy_test,3)
+	visualize_by_index(hX_train,hy_train,hX_test,hy_test,3)
+
+	plt.show()
 if __name__ == '__main__':
     main()

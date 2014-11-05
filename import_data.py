@@ -1,5 +1,6 @@
 import csv
 import numpy as np
+from sklearn.externals import joblib
 
 # date = []
 # time = []
@@ -43,6 +44,10 @@ def read_csv(file_path, has_header = True):
             npdata = np.array(data)
 
     return npdata  
+
+def read_pickle(file_path):
+    data = joblib.load(file_path)
+    return data
 
 def main ():
     data = read_csv('train.csv')

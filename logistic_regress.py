@@ -20,9 +20,10 @@ def convert_times(data):
 	time = (year - 2011)*365 + month*days_in_month[int(month)] + day
 	return [time, data[3:len(data)]]
 
-def read_data(filename):
+def load_data(filename):
 	#Import the csv
-	importedData = import_data.read_csv(filename)
+	importedData = import_data.read_pickle(filename)
+	print (importedData)
 
 	#Split into inputs and outputs
 	X = importedData[:, 0: importedData.shape[1] - 3]
@@ -82,7 +83,7 @@ def visualize_by_index(XTrain,yTrain,XTest,yTest, indexToPlot):
 def main ():
 	#Reading Data
 	print ('Reading data')
-	data = read_data('train.csv')
+	data = load_data('training_set.pkl')
 	X = data[0]
 	y = data[1]
 
@@ -93,13 +94,13 @@ def main ():
 	hX_train, hX_test, hy_train, hy_test = splitData[4:8]
 
 	#Variables:
-	variables = [1:len(wX_train)] #Everything except year
+	#variables = [1:len(wX_train)] #Everything except year
 
 	#Learning
-	model = do_learning(wX_train,wy_train,wX_test, wy_test)
+	#model = do_learning(wX_train,wy_train,wX_test, wy_test)
 
 	#Visualization
-	visualize_learn(model, wX_test, wy_test)
+	#visualize_learn(model, wX_test, wy_test)
 	#visualize_data(wX_train[:,1],wy_train)
 
 	# visualize_by_index(wX_train,wy_train,wX_test,wy_test,3)

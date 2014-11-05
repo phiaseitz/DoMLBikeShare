@@ -47,17 +47,19 @@ def visualize_data(xToPlot,yToPlot):
 	plt.scatter(xToPlot,yToPlot)
 	plt.show()
 
-def do_learning(XTrain, yTrain,XTest, yTest):
+def do_learning(XTrain, yTrain,XTest, yTest, variables):
 	ridge = linear_model.Ridge(alpha = 0.5)
 	ridge.fit(XTrain,yTrain)
-
+	#Prints
 	print (ridge.coef_)
-
 	print (ridge.score(XTest, yTest))
+	#Return Ridge
+	return ridge
 
-def visualize_learn(ridge, XTest, yTest):
+def visualize_learn(ridge, XTest, yTest, variables):
 	plt.scatter(XTest[:,1], yTest, color = 'black')
 	plt.scatter(XTest[:,1], ridge.predict(XTest), color = 'blue')
+	plt.show()
 
 def visualize_by_index(XTrain,yTrain,XTest,yTest, indexToPlot):
 
@@ -90,16 +92,19 @@ def main ():
 	wX_train, wX_test, wy_train, wy_test = splitData[0:4]
 	hX_train, hX_test, hy_train, hy_test = splitData[4:8]
 
-	# #Learning
-	# do_learning(wX_train,wy_train,wX_test, wy_test)
+	#Variables:
+	variables = [1:len(wX_train)] #Everything except year
 
-	# #Visualization
-	# visualize_learn
-	# #visualize_data(wX_train[:,1],wy_train)
+	#Learning
+	model = do_learning(wX_train,wy_train,wX_test, wy_test)
 
-	visualize_by_index(wX_train,wy_train,wX_test,wy_test,3)
-	visualize_by_index(hX_train,hy_train,hX_test,hy_test,3)
+	#Visualization
+	visualize_learn(model, wX_test, wy_test)
+	#visualize_data(wX_train[:,1],wy_train)
 
-	plt.show()
+	# visualize_by_index(wX_train,wy_train,wX_test,wy_test,3)
+	# visualize_by_index(hX_train,hy_train,hX_test,hy_test,3)
+
+	# plt.show()
 if __name__ == '__main__':
     main()

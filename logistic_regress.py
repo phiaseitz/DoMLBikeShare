@@ -5,6 +5,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import datasets, linear_model, cross_validation
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+from sklearn.svm import SVR
 import import_data
 
 #Useful Link
@@ -12,18 +15,11 @@ import import_data
 
 #Settings:
 CATEG = ['year', 'month', 'day', 'time', 'season', 'holiday', 'workingday', 'weather', 'temp', 'atemp', 'humidity', 'windspeed', 'casual', 'registered', 'count']
-DISCLUDE = ['year', 'holiday', 'humidity']
+DISCLUDE = []
 np.set_printoptions(threshold=np.inf)
 
 
 #Functions
-def convert_times(data):
-	#year, month, day
-	[year, month, day] = data[0:3]
-	days_in_month = {1:31, 2:28, 3:31, 4:30, 5:31, 6:30, 7:31, 8:31, 9:30, 10:31, 11:30, 12:31}
-	time = (year - 2011)*365 + month*days_in_month[int(month)] + day
-	return [time, data[3:len(data)]]
-
 def load_data(filename):
 	#Import the csv
 	importedData = import_data.read_pickle(filename)
@@ -57,16 +53,13 @@ def split_data(X,y,modelSplitIndex,testSize):
 
 def visualize_data(xToPlot,yToPlot):
 	plt.scatter(xToPlot,yToPlot)
-	plt.show()
+	#plt.show()
 
-def do_learning(XTrain, yTrain,XTest, yTest, disclude):
+def do_learning(XTrain, yTrain,XTest, yTest):
 	#Fits Data
-	ridge = linear_model.Ridge(alpha = 0.5)
-		#Deleting Unwanted Items
-	[XTrain, XTest] = [np.delete(data, disclude, 1) for data in [XTrain, XTest]]
-	for index in disclude:
-		CATEG.pop(index)
-		#Fitting
+	ridge = linear_model.Ridge(alpha = 0.05)
+	# ridge = make_pipeline(PolynomialFeatures(2), linear_model.Ridge())
+	# ridge = SVR(kernel='poly', C=1e3, degree=4)
 	ridge.fit(XTrain,yTrain)
 
 	#Prints Some Results
@@ -76,15 +69,8 @@ def do_learning(XTrain, yTrain,XTest, yTest, disclude):
 	#Return Ridge
 	return ridge
 
-def visualize_learn(ridge, XTest, yTest, disclude):
-	#Deletes Unwanted
-	XTest= np.delete(XTest, disclude, 1)
-	#Creates Scatter Plot of Predictions
-	plt.scatter(XTest[:,CATEG.index('month')], yTest, color = 'black')
-	plt.scatter(XTest[:,CATEG.index('month')], ridge.predict(XTest), color = 'blue')
-	#plt.show()
-
 def visualize_by_index(XTrain,yTrain,XTest,yTest, indexToPlot):
+	title = 'Bike Count by ' + CATEG[indexToPlot]
 
 	indexValsTrain = XTrain[:,indexToPlot]
 	indexValsTest	= XTest[:,indexToPlot]
@@ -98,8 +84,15 @@ def visualize_by_index(XTrain,yTrain,XTest,yTest, indexToPlot):
 	plt.figure()
 	plt.scatter(uniqueValsTrain,sumRentalsTrain, color = 'blue')
 	plt.scatter(uniqueValsTest,sumRentalsTest, color = 'black')
+	plt.suptitle(title)
 	#plt.show()
 
+def visualize_learn(ridge, XTest, yTest, indexToPlot):
+	#Creates Scatter Plot of Predictions
+	visualize_by_index(XTest, yTest, XTest, ridge.predict(XTest), indexToPlot)
+	# plt.scatter(XTest[:,CATEG.index('time')], yTest, color = 'black')
+	# plt.scatter(XTest[:,CATEG.index('time')], ridge.predict(XTest), color = 'blue')
+	#plt.show()
 
 def main ():
 	#Reading Data
@@ -108,24 +101,29 @@ def main ():
 	X = data[0]
 	y = data[1]
 
+	#Disclude:
+	disclude = [DISCLUDE.index(categ) for categ in DISCLUDE]
+	X = np.delete(X, disclude, 1)
+	for index in disclude:
+		CATEG.pop(index)
+
 	#Splitting Data
 	splitData = split_data(X,y,CATEG.index('workingday'),0.5)
 	wX_train, wX_test, wy_train, wy_test = splitData[0:4]
 	hX_train, hX_test, hy_train, hy_test = splitData[4:8]
 
-	#disclude:
-	disclude = [DISCLUDE.index(categ) for categ in DISCLUDE]
-
 	#Learning
-	model = do_learning(wX_train,wy_train,wX_test, wy_test, disclude)
+	wmodel = do_learning(wX_train,wy_train,wX_test, wy_test)
+	hmodel = do_learning(hX_train,hy_train,hX_test, hy_test)
+
 
 	#Visualization
-	visualize_learn(model, wX_test, wy_test, disclude)
+	visualize_learn(wmodel, wX_test, wy_test, CATEG.index('time'))
+	visualize_learn(hmodel, hX_test, hy_test, CATEG.index('time'))
 
-	#visualize_data(wX_train[:,1],wy_train)
-
-	# visualize_by_index(wX_train,wy_train,wX_test,wy_test,3)
-	# visualize_by_index(hX_train,hy_train,hX_test,hy_test,3)
+	# visualize_data(wX_train[:,1],wy_train)
+	# visualize_by_index(wX_train,wy_train,wX_test,wy_test, CATEG.index('temp'))
+	# visualize_by_index(hX_train,hy_train,hX_test,hy_test,CATEG.index('temp'))
 	plt.show()
 
 if __name__ == '__main__':
